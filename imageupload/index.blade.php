@@ -63,6 +63,22 @@
                          <td>{{$imageupload->name}}</td>
                      <td><img src="{{asset('public2/'. $imageupload->upload_image)}}" width="50px"height="50px" alt=""></td>
                      <td><a href="editimage/{{$imageupload->id}}">Edit</a></td>
+                       <td>
+                        <form method="post" action="/deleteimage/{{ $imageupload->id }}">
+                            @csrf
+                            {{ method_field('DELETE') }}
+                            <button type="submit" class="btn btn-danger">Delete</button>
+                        </form>
+
+                    </td>
+                     <td>
+                        <form method="post" action="/deleteallimage/{{ $imageupload->id }}">
+                            @csrf
+                            {{ method_field('DELETE') }}
+                            <button type="submit" class="btn btn-danger">Delete All</button>
+                        </form>
+
+                    </td>
                      </tr>
                         @endforeach
                  </tbody>
