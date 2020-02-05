@@ -90,4 +90,14 @@ class ImageUploadController extends Controller
 
 
     }
+     public function deleteimage($id){
+        ImageUpload::find($id)->delete();
+        return redirect('/imageupload');
+
+    }
+    public function deleteallimage($id){
+        ImageUpload::truncate();
+        return redirect('/imageupload');
+    }
+}
 }
