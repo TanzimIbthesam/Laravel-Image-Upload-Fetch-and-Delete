@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Intervention\Image\ImageManagerStatic as Image;
 use App\ImageUpload;
+use Storage;
 use Carbon\Carbon;
 use Illuminate\Support\Carbon as SupportCarbon;
 
@@ -12,84 +13,115 @@ class ImageUploadController extends Controller
 {
     //
     public function index(){
-        $imageuploads=ImageUpload::all();
-        return view('imageupload.index',compact('imageuploads'));
+
+        $images=ImageUpload::all();
+        // return view('imageupload.index',compact('images'));
+        return view('imageupload.index')->with('images',$images);
+
     }
     public function uploadimage(Request $request){
-        $uploadimage= new ImageUpload();
-        $uploadimage->upload_image=$request->input('upload_image');
-        $uploadimage->name=$request->input('name');
-        // $uploadimage->updated_at=$request->input('updated_at');
-
-
-        // Image::make(request()->file('upload_image'))->resize(100, 60)->save('public2');
-        // ImageUpload::insert([
-        //     'created_at'=>$request->created_at,
-        //     'updated_at'=>$request->updated_at,
-        // ]);
+        $data=request()->validate([
+            'name'=>'required|min:5',
+            'upload_image'=>'image|required|max:2000',
+            // 'upload_image'=>'required|max:2000|mimes:doc,docx,pdf',
+        ]);
+        // $image= new ImageUpload;
+        // $image->name=$request->name;
+        // $image->upload_image=$request->upload_image;
+        $image= new ImageUpload;
+        // dd($image);
+        $image->name=$request->input('name');
         if($request->hasFile('upload_image')){
-            $file=$request->file('upload_image');
+         $imagename=$request->file('upload_image');
 
-             $extension=$file->getClientOriginalExtension();
+         $file_name=time().'.'.$imagename->getClientOriginalExtension();
+        //   dd($file_name);
+        $location=public_path('public2/'. $file_name);
+        // dd($location);
 
-
-            $filename=time().'.'.$extension;
-            //  dd($filename);
-            // $file->move('public2',$filename);
-            // dd(public_path('public2/new/'));
-            Image::make($file)->resize(300,150)->save(public_path('public2/'.$filename) );
-            // Image::make(request()->file('upload_image'))->resize(100, 60)->save('public2');
-
-          $uploadimage->upload_image=$filename;
+        Image::make($imagename)->resize(300,150)->save($location);
 
 
-        }else{
-           return $request;
-           $uploadimage->upload_image='';
+
+
+        $image->upload_image=$file_name;
+
+
+
+
+
         }
-    //     dd($uploadimage);
-    //    dd($uploadimage->save());
-    $uploadimage->save();
+        $image->save();
+        return back();
 
-    //    return view('imageupload.index')->with('uploadimage',$uploadimage);
-    return back();
+        // }else{
+        //     return $request;
+        // }
+
+        //  $image->save();
+
+
+    //    return view('imageupload.index')->with('image',$image);
+    // return back();
 
 
     }
     public function editimage($id){
         $imageuploads=ImageUpload::find($id);
-        return view('imageedit.index')->with('image',$imageuploads);
+        return view('imageedit.index')->with('imageuploads',$imageuploads);
     }
 
     public function updateimage(Request $request, $id){
-        $uploadimage= ImageUpload::find($id);
+        // $uploadimage= ImageUpload::find($id);
+        // $uploadimage->name=$request->input('name');
+        // $uploadimage->upload_image=$request->file('upload_image');
 
-        $uploadimage->upload_image=$request->input('upload_image');
-        $uploadimage->name=$request->input('name');
-
+        $image= ImageUpload::find($id);
+        // dd($image);
+        $image->name=$request->input('name');
         if($request->hasFile('upload_image')){
-            $file=$request->file('upload_image');
+         $imagename=$request->file('upload_image');
 
-             $extension=$file->getClientOriginalExtension();
+         $file_name=time().'.'.$imagename->getClientOriginalExtension();
+        //  dd($file_name);
+        $location=public_path('public2/'. $file_name);
+        // dd($location);
+        Image::make($imagename)->resize(300,150)->save($location);
+        //    $oldfilename=$image->upload_image;
+
+           $image->upload_image=$file_name;
 
 
-            $filename=time().'.'.$extension;
 
-            Image::make($file)->resize(300,150)->save(public_path('public2/'.$filename) );
 
-          $uploadimage->upload_image=$filename;
+
+
+
 
 
         }
+        $image->save();
+        return redirect('/imageupload');
+    //     if($request->hasFile('upload_image')){
+    //         $image=$request->file('upload_image');
+    //         $file_name=time().'.'.$image->getClientOriginalExtension();
+    //        //  dd($file_name);
+    //        Image::make($image)->resize(300,150)->save(public_path('public2/'.$file_name) );
+    //        $uploadimage= ImageUpload::find($id);
 
-    $uploadimage->save();
+    //     $uploadimage->upload_image=$request->input('upload_image');
+    //     $uploadimage->name=$request->input('name');
 
-    return redirect('/imageupload')->with('uploadimage',$uploadimage);
+    // $uploadimage->save();
+
+    return back();
+
+    // return redirect('/imageupload')->with('uploadimage',$uploadimage);
+
+        }
 
 
 
-
-    }
      public function deleteimage($id){
         ImageUpload::find($id)->delete();
         return redirect('/imageupload');
@@ -100,4 +132,4 @@ class ImageUploadController extends Controller
         return redirect('/imageupload');
     }
 }
-}
+
